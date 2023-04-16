@@ -1,0 +1,19 @@
+{
+  "name": "electron-chatgpt",
+  "version": "1.0.0",
+  "description": "minimal electron chat app using openai",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "keywords": [],
+  "author": "kentskyo.com",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^24.0.0"
+  },
+  "dependencies": {
+    "electron-reload": "^2.0.0-alpha.1",
+    "openai": "^3.2.1"
+  }
+}

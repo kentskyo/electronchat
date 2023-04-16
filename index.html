@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self'" />
+    <title>Electron App</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        background: black;
+        color: whitesmoke;
+      }
+      main {
+        width: 100%;
+        margin: 0 auto;
+        max-width: 1000px;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
+      header {
+        padding: 2rem 2rem 1rem 2rem;
+        display: flex;
+        flex-wrap: wrap;
+      }
+      header h1 {
+        display: inline-block;
+      }
+
+      section {
+        display: flex;
+        flex-wrap: wrap;
+        padding: 0 2em;
+        height: 100%;
+      }
+      #controls {
+        flex-basis: 250px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+      img {
+        width: 200px;
+        height: 200px;
+      }
+
+      #dialog {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-width: 250px;
+        height: 100%;
+        padding-left: 1.5rem;
+        gap: 1.5em;
+      }
+      #history {
+        height: 60%;
+        padding-bottom: 1rem;
+        display: flex;
+      }
+      #chat {
+        height: 30%;
+        display: flex;
+      }
+      textarea {
+        width: 100%;
+        background-color: black;
+        color: whitesmoke;
+        padding: 1rem;
+      }
+
+      textarea::-webkit-scrollbar {
+        display: none;
+      }
+
+      textarea:focus-visible {
+        outline: none;
+      }
+
+      #api-key {
+        display: flex;
+        padding: 1em 0;
+        align-items: center;
+        justify-content: right;
+        flex: 1;
+        overflow: hidden;
+      }
+      #key-icon {
+        display: block;
+      }
+      .key-block {
+        display: flex;
+        visibility: hidden;
+        align-items: center;
+        padding-left: 2rem;
+        padding-right: 0.5rem;
+        opacity: 0;
+        transform: translateY(-100%);
+        transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+        flex: 1;
+      }
+      .key-block.show {
+        visibility: visible;
+        transform: translateX(0);
+        opacity: 1;
+      }
+
+      #key-input {
+        height: 2rem;
+        margin-left: 1rem;
+        flex: 1;
+        background-color: black;
+        color: whitesmoke;
+      }
+
+      #stats {
+        display: grid;
+        grid-auto-rows: 1fr;
+        grid-template-columns: auto 1fr;
+        gap: 0 1em;
+        padding-top: 2em;
+      }
+      .justify-end {
+        justify-self: end;
+      }
+
+      #sliders {
+        display: flex;
+        padding: 1.5rem 0;
+        flex-direction: column;
+        gap: 0.5em 0;
+      }
+      .slider {
+        display: flex;
+        justify-content: space-between;
+      }
+
+      #err-msg {
+        color: orange;
+        margin-top: 2rem;
+        display: inline-flex;
+      }
+
+      .warning {
+        background-color: orange;
+        color: black;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>Electron Chat</h1>
+        <div id="api-key">
+          <div class="key-block">
+            <label for="key-input">API Key:</label>
+            <input type="text" id="key-input" />
+          </div>
+          <svg
+            id="key-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-key"
+          >
+            <path
+              d="m21 2-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0 3 3L22 7l-3-3m-3.5 3.5L19 4"
+            ></path>
+          </svg>
+        </div>
+      </header>
+      <section>
+        <div id="controls">
+          <img src="avatar.png" alt="chat avataar" />
+          <div id="stats">
+            <div>Cost</div>
+            <div class="justify-end" id="cost-value">0</div>
+            <div>Response Time</div>
+            <div class="justify-end" id="response-value">0</div>
+            <div>Total Tokens</div>
+            <div class="justify-end" id="total-value">0</div>
+            <div>Reply</div>
+            <div class="justify-end" id="completion-value">0</div>
+            <div>Sent + Context</div>
+            <div class="justify-end" id="prompt-value">0</div>
+          </div>
+          <div id="sliders">
+            <div class="slider">
+              <label id="temp-label" for="temp-meter">Temp: 0.7</label>
+              <input
+                type="range"
+                step="0.01"
+                min="0.0"
+                max="1.0"
+                value="0.7"
+                id="temp-meter"
+              />
+            </div>
+            <div class="slider">
+              <label id="tokens-label" for="max-tokens">Reply: 200</label>
+              <input
+                type="range"
+                step="10"
+                min="0"
+                max="2000"
+                value="200"
+                id="max-tokens"
+              />
+            </div>
+            <div class="slider">
+              <label id="frequency-label" for="frequency">Frequency: 0</label>
+              <input
+                type="range"
+                step="0.1"
+                min="-2.0"
+                max="2.0"
+                value="0"
+                id="frequency"
+              />
+            </div>
+          </div>
+          <div id="err-msg"></div>
+        </div>
+        <div id="dialog">
+          <div id="history">
+            <textarea id="history-block" readonly></textarea>
+          </div>
+          <div id="chat">
+            <textarea
+              id="chat-block"
+              placeholder="Enter text here and press return"
+              autofocus
+            ></textarea>
+          </div>
+        </div>
+      </section>
+      <footer></footer>
+    </main>
+  </body>
+  <script src="./render.js"></script>
+</html>
