@@ -1,4 +1,4 @@
-# electronchat
+# Electron Chat GPT
 
 A minimal electron app using openai's chat api. For more detail on the implementation check out the post on kentskyo.
 
@@ -14,4 +14,4 @@ npm install
 npm run start
 ```
 
-Then click on the key to enter your API key and click it again to store. Chat away!
+Then click on the key icon to enter your API key, and click it again to store. Chat away!
