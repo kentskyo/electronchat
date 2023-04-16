@@ -10,7 +10,7 @@ const createWindow = () => {
     win = new BrowserWindow({
         width: 850,
         height: 850,
-        alwaysOnTop: true, // useful while debugging in render console logs
+        alwaysOnTop: false, // useful while debugging in render console logs
         webPreferences: {
             nodeIntegration: true,  // we need to import libraries in render
             contextIsolation: false // an our page is internal
