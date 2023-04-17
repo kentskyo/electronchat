@@ -1,6 +1,6 @@
 # Electron Chat GPT
 
-A minimal electron app using openai's chat api. For more detail on the implementation check out the post on kentskyo.
+A minimal electron app using openai's chat api. For more detail on the implementation check out [the post on kentskyo.](https://kentskyo.com/electron-chat-gpt/)
 
 To run you'll need [an api key from openai.](https://platform.openai.com/account/api-keys)
 
