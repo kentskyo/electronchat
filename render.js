@@ -1,4 +1,5 @@
-const { Configuration, OpenAIApi } = require("openai");
+const { OpenAI } = require("openai");
+
 const FixedStack = require('./FixedStack'); // context 
 
 const keyIcon = document.getElementById("key-icon")
@@ -81,21 +82,9 @@ frequencySlider.addEventListener('input', (event) => {
 });
 
 
-// fix for unsafe user agent error - remove user agent from header
-// const setRequestHeader = XMLHttpRequest.prototype.setRequestHeader;
-// XMLHttpRequest.prototype.setRequestHeader = function newSetRequestHeader(key, val) {
-//     if (key.toLocaleLowerCase() === 'user-agent') {
-//         return;
-//     }
-//     setRequestHeader.apply(this, [key, val]);
-// };
-
-
-let configuration = new Configuration({
-    apiKey: apiKey
+const openai = new OpenAI({
+    apiKey: apiKey, dangerouslyAllowBrowser: true
 });
-// fix for unsafe user agent error - remove user agent from header
-delete configuration.baseOptions.headers['User-Agent'];
 
 
 async function runRequest() {
@@ -106,7 +95,6 @@ async function runRequest() {
     }
     running = true
     try {
-        const openai = new OpenAIApi(configuration);
         const response = await openai.listModels();
         console.log(response)
     } catch (e) {
@@ -145,25 +133,13 @@ stack.push({ "role": "user", "content": "stop saying you're an AI language model
 
 async function runChat() {
     try {
-        const openai = new OpenAIApi(configuration);
-
-        //     messages = [
-        //         { "role": "system", "content": "You are a helpful assistant." },
-        //         { "role": "user", "content": "Who won the world series in 2020?" },
-        //         { "role": "assistant", "content": "The Los Angeles Dodgers won the World Series in 2020." },
-        //         { "role": "user", "content": "Where was it played?" }
-        //     ]
-        // )
-
         let messages = stack.stack
         let totalTokens = null
         let promptTokens = null
         let completionTokens = null
 
-        // console.log("messages:", messages)
-
         const startTime = performance.now();
-        const completion = await openai.createChatCompletion({
+        const completion = await openai.chat.completions.create({
             model: "gpt-3.5-turbo",
             max_tokens: Number(maxTokens),
             frequency_penalty: Number(frequency),
@@ -173,12 +149,11 @@ async function runChat() {
         const endTime = performance.now();
         const responseTime = (endTime - startTime) / 1000;
 
-        let r = completion.data.choices[0].message.content;
-        let usage = completion.data.usage
+        let r = completion.choices[0].message.content;
+        let usage = completion.usage
+
         historyBlock.value += r + '\n\n';
         stack.push({ "role": "assistant", "content": r })
-        // console.log("Response dump: ", completion.data)
-        // console.log("Usage:", completion.data.usage)
 
         if (typeof usage !== "undefined") {
             totalTokens = usage?.total_tokens
@@ -186,7 +161,6 @@ async function runChat() {
             completionTokens = usage?.completion_tokens
             if (totalTokens > 0) totalCharges = totalTokens * pricing
         }
-        // console.log(`Usage. Total Charges: ${totalCharges.toFixed(4)} Response Time: ${responseTime.toFixed(3)} seconds.  Total Tokens: ${totalTokens} Prompt Tokens: ${promptTokens} Completion Tokens: ${completionTokens}`)
         costValue.textContent = totalCharges.toFixed(4)
         responseValue.textContent = responseTime.toFixed(3)
         totalValue.textContent = totalTokens
@@ -205,10 +179,6 @@ async function runChat() {
         displayErrorMessage(error)
     }
 }
-
-
-
-// displayErrorMessage("Lorem, ipsum dolor sit amet consectetur adipisicing elit. Totam perferendis, consequuntur, natus voluptatum distinctio consectetur autem ipsum nihil nesciunt aliquam corporis, neque inventore. Rerum quo maxime voluptatem repellat nobis obcaecati!")
 
 // circumvent longstanding problem in electron on windows using alert and losing focus in browserwindow
 function displayErrorMessage(message) {

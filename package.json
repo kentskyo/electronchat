@@ -10,10 +10,10 @@
   "author": "kentskyo.com",
   "license": "ISC",
   "devDependencies": {
-    "electron": "^24.0.0"
+    "electron": "^27.0.2"
   },
   "dependencies": {
     "electron-reload": "^2.0.0-alpha.1",
-    "openai": "^3.2.1"
+    "openai": "^4.14.2"
   }
 }
